@@ -26,7 +26,7 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Étape 4 : Configuration des informations d'identification
+      # Étape 4 : Configuration des informations d'ident
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
