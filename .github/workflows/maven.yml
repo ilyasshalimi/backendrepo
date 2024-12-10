@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Étape 3 : Construction du projet avec Maven
+      # Étape 3 : Construction du projet avec M
       - name: Build with Maven
         run: mvn clean install
 
