@@ -59,7 +59,7 @@ jobs:
         run: |
           aws eks --region eu-west-3 update-kubeconfig --name spring-cluster
 
-      # Étape 9 : Déployer sur EKS
+      # Étape 9 : Déployer sur EK
       - name: Apply Kubernetes Manifest
         run: |
           kubectl apply -f k8s.yaml
