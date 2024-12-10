@@ -12,7 +12,7 @@ public class Demo55Application {
 
     @GetMapping("/greetings")
     public String message() {
-        return "Welcome my app";
+        return "Welcome my app ilyass";
     }
 
     public static void main(String[] args) {

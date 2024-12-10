@@ -1,0 +1,58 @@
+name: Project Build and Docker Push to ECR
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1 : Checkout du code source
+      - uses: actions/checkout@v4
+
+      # Étape 2 : Configuration de l'environnement JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # Étape 3 : Construction du projet avec Maven
+      - name: Build with Maven
+        run: mvn clean install
+
+      # Étape 4 : Configuration des informations d'identification
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Étape 5 : Connexion à Amazon ECR
+      - name: Log in to Amazon ECR
+        env:
+          ECR_REGISTRY: 108641306373.dkr.ecr.us-east-1.amazonaws.com
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+      # Étape 6 : Construction et marquage de l'image Docker
+      - name: Build Docker Image
+        env:
+          ECR_IMAGE_NAME: springapi
+        run: |
+          docker build -t $ECR_IMAGE_NAME .
+          docker tag $ECR_IMAGE_NAME:latest $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
+
+      # Étape 7 : Push de l'image Docker vers Amazon ECR
+      - name: Push Docker Image to ECR
+        env:
+          ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
+          ECR_IMAGE_NAME: springapi
+        run: |
+          docker push $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
