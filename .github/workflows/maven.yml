@@ -37,7 +37,7 @@ jobs:
       # Étape 5 : Connexion à Amazon ECR
       - name: Log in to Amazon ECR
         env:
-          ECR_REGISTRY: 108641306373.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
@@ -52,7 +52,7 @@ jobs:
       # Étape 7 : Push de l'image Docker vers Amazon
       - name: Push Docker Image to ECR
         env:
-          ECR_REGISTRY: 108641306373.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
           ECR_IMAGE_NAME: springapi
         run: |
           docker push $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
