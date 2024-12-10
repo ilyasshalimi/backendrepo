@@ -47,7 +47,7 @@ jobs:
           ECR_IMAGE_NAME: springapi
         run: |
           docker build -t $ECR_IMAGE_NAME .
-          docker tag $ECR_IMAGE_NAME:latest $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
+          docker tag springapi:latest 108641306373.dkr.ecr.eu-west-3.amazonaws.com/springapi:latest
 
       # Étape 7 : Push de l'image Docker vers Amazon
       - name: Push Docker Image to ECR
@@ -55,5 +55,4 @@ jobs:
           ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
           ECR_IMAGE_NAME: springapi
         run: |
-          docker push $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
-          
+              docker push 108641306373.dkr.ecr.eu-west-3.amazonaws.com/springapi:latest          
