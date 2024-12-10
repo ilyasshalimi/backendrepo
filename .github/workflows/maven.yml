@@ -56,3 +56,4 @@ jobs:
           ECR_IMAGE_NAME: springapi
         run: |
           docker push $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
+          
