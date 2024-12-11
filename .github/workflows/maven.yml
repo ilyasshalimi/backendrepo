@@ -41,7 +41,7 @@ jobs:
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-      # Étape 6 : Construction et marquage de l'image Docker
+      # Étape 6 : Construction et marquage de l'image Docke
       - name: Build Docker Image
         env:
           ECR_IMAGE_NAME: springapi
