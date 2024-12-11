@@ -1,4 +1,4 @@
-name: Project Build and Docker Push to ECR
+name: Project Build, Docker Push to ECR, and Deploy to EKS
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-push:
+  build-push-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +22,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Étape 3 : Construction du projet avec M
+      # Étape 3 : Construction du projet avec Maven
       - name: Build with Maven
         run: mvn clean install
 
-      # Étape 4 : Configuration des informations d'ident
+      # Étape 4 : Configuration des informations d'identification AWS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -39,20 +39,31 @@ jobs:
         env:
           ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+          aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-      # Étape 6 : Construction et marquage de l'image Docke
+      # Étape 6 : Construction et marquage de l'image Docker
       - name: Build Docker Image
         env:
           ECR_IMAGE_NAME: springapi
+          ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
         run: |
           docker build -t $ECR_IMAGE_NAME .
-          docker tag springapi:latest 108641306373.dkr.ecr.eu-west-3.amazonaws.com/springapi:latest
+          docker tag $ECR_IMAGE_NAME:latest $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
 
-      # Étape 7 : Push de l'image Docker vers Amazon
+      # Étape 7 : Push de l'image Docker vers Amazon ECR
       - name: Push Docker Image to ECR
         env:
-          ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
           ECR_IMAGE_NAME: springapi
+          ECR_REGISTRY: 108641306373.dkr.ecr.eu-west-3.amazonaws.com
         run: |
-              docker push 108641306373.dkr.ecr.eu-west-3.amazonaws.com/springapi:latest          
+          docker push $ECR_REGISTRY/$ECR_IMAGE_NAME:latest
+
+      # Étape 8 : Configuration de l'accès à EKS
+      - name: Update kubeconfig for Amazon EKS
+        run: |
+          aws eks --region eu-west-3 update-kubeconfig --name spring-cluster
+
+      # Étape 9 : Déployer sur EKS
+      - name: Apply Kubernetes Manifest
+        run: |
+          kubectl apply -f k8s.yaml
